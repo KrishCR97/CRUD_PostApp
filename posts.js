@@ -1,3 +1,4 @@
+var postDescription = "";
 document.getElementById("getData").addEventListener("click", () => {
     if(!localStorage.users){
     Promise.all([getUsers(),getPosts(),getComments()]).then((data)=>{
@@ -6,22 +7,44 @@ document.getElementById("getData").addEventListener("click", () => {
         localStorage.comments = JSON.stringify(data[2]);
 });
 }
-var postDescription = "";
+
+var index = 0;
+if(postDescription == ""){
 JSON.parse(localStorage.posts).forEach(element => {
-    postDescription += `<article>
-    <header>
-      <h1>UserName : </h1> <p>${element.id}</p>
-      <h1>Title: </h1> <p>${element.title}</p>
-      <h1>Description: </h1> <p>${element.body}</p>
-    </header>
-    <p>WWF's mission is to stop the degradation of our planet's natural environment,
-    and build a future in which humans live in harmony with nature.</p>
-  </article><br/>`;
+    
+        postDescription += `<div id = post_${index}><article>
+        <header>
+          <h1>UserName : </h1> <p>${JSON.parse(localStorage.users)[parseInt(element.userId) - 1].username }</p>
+          <h1>Title: </h1> <p>${element.title}</p>
+          <h1>Description: </h1> <p>${element.body}</p>
+        </header>
+      </article><br/></div>
+      <input type = ${"submit"} id = ${"like_"+ element.id} value = "Like"/>
+      <input type = ${"submit"} id = ${"comment_"+ element.id} value = "Comments"/> 
+      <input type = ${"submit"} id = ${"delete_" + index} value = "delete post"/>`;
+    
+    
 });
-console.log(postDescription);
-//document.getElementById("getData").insertAdjacentElement("afterend",)
+}
+document.getElementById("getData").insertAdjacentHTML("afterend",postDescription);
 });
 
+jQuery(document).on('click', '[id^="comment_"]', function(e) {
+
+});
+jQuery(document).on('click', '[id^="delete_"]', function(e) {
+
+});
+jQuery(document).on('click', '[id^="like_"]', function(e) {
+
+});
+
+function attachLikeEvent(){
+
+}
+function attachDeleteEvent(){
+
+}
 function getPosts() {
     var posts = new Promise((resolve, reject) => {
         resolve(jQuery.ajax({
