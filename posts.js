@@ -13,40 +13,43 @@ document.getElementById("getData").addEventListener("click", () => {
     if (postDescription == "") {
         var parsedUsers = JSON.parse(localStorage.users);
         console.log(parsedUsers.length);
-
-        for (var outerIndex = 0; outerIndex < parsedUsers.length; outerIndex++) {
-            var newPost = {
-                "id": parsedUsers[outerIndex].id,
-                "userName": parsedUsers[outerIndex].username,
-                "postsTitleBody": []
-            }
-            // console.log(parsedUsers[outerIndex].id);
-            // console.log(parsedUsers[outerIndex].username);
-            var parsedPosts = JSON.parse(localStorage.posts);
-            var parsedComments = JSON.parse(localStorage.comments);
-            for (var index = 0; index < parsedPosts.length; index++) {
-                if (parsedPosts[index].userId == newPost.id) {
-                    var postTitleBody = {
-                        "title": parsedPosts[index].title,
-                        "body": parsedPosts[index].body,
-                        "like": "Like",
-                        "comments": []
-                    }
-                    for (var counter = 0; counter < parsedComments.length; counter++) {
-                        if (parsedComments[counter].postId == parsedPosts[index].id) {
-                            var comments = {
-                                "comment": parsedComments[counter].body
-                            }
-                            //newPost.comments.push(comment);
-                            postTitleBody.comments.push(comments)
-                        }
-                    }
-
-                    newPost.postsTitleBody.push(postTitleBody);
-
+        if (!localStorage.arr) {
+            for (var outerIndex = 0; outerIndex < parsedUsers.length; outerIndex++) {
+                var newPost = {
+                    "id": parsedUsers[outerIndex].id,
+                    "userName": parsedUsers[outerIndex].username,
+                    "postsTitleBody": []
                 }
+                var parsedPosts = JSON.parse(localStorage.posts);
+                var parsedComments = JSON.parse(localStorage.comments);
+                for (var index = 0; index < parsedPosts.length; index++) {
+                    if (parsedPosts[index].userId == newPost.id) {
+                        var postTitleBody = {
+                            "title": parsedPosts[index].title,
+                            "body": parsedPosts[index].body,
+                            "like": "Like",
+                            "comments": []
+                        }
+                        for (var counter = 0; counter < parsedComments.length; counter++) {
+                            if (parsedComments[counter].postId == parsedPosts[index].id) {
+                                var comments = {
+                                    "comment": parsedComments[counter].body,
+                                    "like": "Like"
+                                }
+                                postTitleBody.comments.push(comments)
+                            }
+                        }
+
+                        newPost.postsTitleBody.push(postTitleBody);
+
+                    }
+                }
+                arr.push(newPost);
             }
-            arr.push(newPost);
+            localStorage.arr = JSON.stringify(arr);
+        }
+        else {
+            arr = JSON.parse(localStorage.arr);
         }
         for (var index = 0; index < arr.length; index++) {
             for (var innerIndex = 0; innerIndex < arr[index].postsTitleBody.length; innerIndex++) {
@@ -64,21 +67,21 @@ document.getElementById("getData").addEventListener("click", () => {
             }
 
         }
-        // console.log(JSON.stringify(arr));
     }
     document.getElementById("getData").insertAdjacentHTML("afterend", postDetails);
 });
 var flag = false;
 jQuery(document).on('click', '[id^="comment_"]', function (e) {
-
+    var arrLike = JSON.parse(localStorage.arr);
     var values = e.target.id.split('_');
-    console.log(values[1] + "" + values[2]);
-    console.log(arr[values[1]].postsTitleBody[values[2]].comments);
     var comments = "";
-    comments += `<div id = comments_${values[1]}_${values[2]}>`;
-    for (var index = 0; index < arr[values[1]].postsTitleBody[values[2]].comments.length; index++) {
+    comments += `<div id = comments_${values[1]}_${values[2]}><br/>`;
+    comments += `<input type= ${"text"} id = newComment /> <input type = submit id = addComment_${values[1]}_${values[2]} value = AddComment>`;
+    for (var index = 0; index < arrLike[values[1]].postsTitleBody[values[2]].comments.length; index++) {
         comments += `<div id=comment_${values[1]}_${values[2]}_${index}>
-     <p>${index}. ${arr[values[1]].postsTitleBody[values[2]].comments[index].comment}</p><input type = ${"submit"} value = ${"Like"} ></input>
+     <p>${index}. ${arrLike[values[1]].postsTitleBody[values[2]].comments[index].comment}</p><input type = ${"submit"} 
+     id= commentLike_${values[1]}_${values[2]}_${index} value = ${arrLike[values[1]].postsTitleBody[values[2]].comments[index].like} ></input>
+     <input type= ${"submit"} id = deleteComment_${values[1]}_${values[2]}_${index} value=${"Delete Comment"}>
      </div><br/>`;
     }
     comments += `</div>`;
@@ -92,13 +95,53 @@ jQuery(document).on('click', '[id^="comment_"]', function (e) {
     }
 });
 jQuery(document).on('click', '[id^="delete_"]', function (e) {
-    console.log();
-    console.log(e.target.id.replace("delete", "post"));
+    var arrLike = JSON.parse(localStorage.arr);
+    var innerId = e.target.id.split('_');
+    console.log(arrLike[innerId[1]].postsTitleBody.splice(innerId[2], 1));
     document.getElementById(e.target.id.replace("delete", "post")).remove();
+    if (document.getElementById(e.target.id.replace("delete", "comments"))) {
+        document.getElementById(e.target.id.replace("delete", "comments")).remove();
+    }
+
+    localStorage.arr = JSON.stringify(arrLike);
 
 });
 jQuery(document).on('click', '[id^="like_"]', function (e) {
-    document.getElementById(e.target.id).value = "You liked this post";
+    var arrLike = JSON.parse(localStorage.arr);
+    var innerId = e.target.id.split('_');
+    document.getElementById(e.target.id).value = "Liked";
+    arrLike[innerId[1]].postsTitleBody[innerId[2]].like = "Liked";
+    console.log(arrLike[innerId[1]].postsTitleBody[innerId[2]].like);
+    localStorage.arr = JSON.stringify(arrLike);
+});
+// jQuery(document).on('click','',function(){
+
+// });
+
+// jQuery(document).on('click','',function(){
+
+// });
+
+jQuery(document).on('click', '[id^="commentLike_"]', function (e) {
+    var arrLike = JSON.parse(localStorage.arr);
+    var innerId = e.target.id.split('_');
+    arrLike[innerId[1]].postsTitleBody[innerId[2]].comments[innerId[3]].like = "Liked";
+    document.getElementById(e.target.id).value = "Liked"
+    localStorage.arr = JSON.stringify(arrLike);
+});
+
+jQuery(document).on('click', '[id^="deleteComment_"]', function (e) {
+    var arrLike = JSON.parse(localStorage.arr);
+    var innerId = e.target.id.split('_');
+    //console.log("comment_"+innerId[1]+"_"+innerId[2]+"_"+innerId[3]);
+    document.getElementById("comment_" + innerId[1] + "_" + innerId[2] + "_" + innerId[3]).remove();
+    //console.log(arrLike[innerId[1]].postsTitleBody[innerId[2]].comments[innerId[3]].comment);
+    console.log(arrLike[innerId[1]].postsTitleBody[innerId[2]].comments.splice(innerId[3], 1));
+    //localStorage.arr = JSON.stringify(arrLike);
+    // delete arrLike[innerId[1]].postsTitleBody[innerId[2]].comments[innerId[3]].comment;
+    // delete arrLike[innerId[1]].postsTitleBody[innerId[2]].comments[innerId[3]].like;
+
+    localStorage.arr = JSON.stringify(arrLike);
 });
 
 function getPosts() {
