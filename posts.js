@@ -1,6 +1,49 @@
 var postDescription = "";
 var postDetails = "";
 var arr = [];
+document.getElementById("addPostBtn").addEventListener("click", () => {
+    var userNameP = document.getElementById("userId").value;
+    var postName = document.getElementById("postName").value;
+    var description = document.getElementById("description").value;
+    console.log(userNameP + " " + postName + " " + description);
+    if (userNameP.trim() != "" && postName.trim() != "" && description.trim() != "") {
+        var arrLike = JSON.parse(localStorage.arr);
+        var flag = false;
+        var flagValue = 0;
+        for (var index = 0; index < arrLike.length; index++) {
+            if (arrLike[index].userName.toLowerCase() == userNameP.toLowerCase()) {
+                flag = true;
+                flagValue = index;
+                break;
+            }
+        }
+        var id = arrLike.length + 1;
+
+        var newPost = {
+            "id": id,
+            "userName": userNameP,
+            "postsTitleBody": []
+        };
+        var postTitleBody = {
+            "title": postName,
+            "body": description,
+            "like": "Like",
+            "comments": []
+        };
+        newPost.postsTitleBody.push(postTitleBody);
+        if (flag) {
+            arrLike[index].postsTitleBody.push(postTitleBody);
+        }
+        else {
+            arrLike.push(newPost);
+        }
+        localStorage.arr = JSON.stringify(arrLike);
+    }
+    else {
+        alert("Enter all the fields.");
+
+    }
+});
 document.getElementById("getData").addEventListener("click", () => {
     if (!localStorage.users) {
         Promise.all([getUsers(), getPosts(), getComments()]).then((data) => {
@@ -76,7 +119,7 @@ jQuery(document).on('click', '[id^="comment_"]', function (e) {
     var values = e.target.id.split('_');
     var comments = "";
     comments += `<div id = comments_${values[1]}_${values[2]}><br/>`;
-    comments += `<input type= ${"text"} id = newComment /> <input type = submit id = addComment_${values[1]}_${values[2]} value = AddComment>`;
+    comments += `<input type= ${"text"} id = newComment_${values[1]}_${values[2]} /> <input type = submit id = addComment_${values[1]}_${values[2]} value = AddComment>`;
     for (var index = 0; index < arrLike[values[1]].postsTitleBody[values[2]].comments.length; index++) {
         comments += `<div id=comment_${values[1]}_${values[2]}_${index}>
      <p>${index}. ${arrLike[values[1]].postsTitleBody[values[2]].comments[index].comment}</p><input type = ${"submit"} 
@@ -114,6 +157,22 @@ jQuery(document).on('click', '[id^="like_"]', function (e) {
     console.log(arrLike[innerId[1]].postsTitleBody[innerId[2]].like);
     localStorage.arr = JSON.stringify(arrLike);
 });
+
+jQuery(document).on('click', '[id^="addComment_"]', function (e) {
+    var arrLike = JSON.parse(localStorage.arr);
+    var innerId = e.target.id.split('_');
+    var commentData = document.getElementById(e.target.id.replace('addComment', 'newComment')).value;
+    document.getElementById(e.target.id.replace('addComment', 'newComment')).value = "";
+    var commentAndLike = {
+        "comment": commentData,
+        "like": "Like"
+    };
+
+    arrLike[innerId[1]].postsTitleBody[innerId[2]].comments.push(commentAndLike);
+    localStorage.arr = JSON.stringify(arrLike);
+});
+
+
 // jQuery(document).on('click','',function(){
 
 // });
