@@ -134,7 +134,13 @@ jQuery(document).on('click', '[id^="comment_"]', function (e) {
     }
     else {
         flag = false;
-        document.getElementById(`comments_${values[1]}_${values[2]}`).remove();
+        if(document.getElementById(`comments_${values[1]}_${values[2]}`)){
+            document.getElementById(`comments_${values[1]}_${values[2]}`).remove();
+        }
+        else{
+            flag = true;
+        }
+        
     }
 });
 jQuery(document).on('click', '[id^="delete_"]', function (e) {
@@ -186,7 +192,12 @@ jQuery(document).on('click', '[id^="commentLike_"]', function (e) {
     var innerId = e.target.id.split('_');
     arrLike[innerId[1]].postsTitleBody[innerId[2]].comments[innerId[3]].like = "Liked";
     document.getElementById(e.target.id).value = "Liked"
+    console.log(arrLike[innerId[1]].postsTitleBody[innerId[2]].comments[innerId[3]].like);
     localStorage.arr = JSON.stringify(arrLike);
+    var arrLike = JSON.parse(localStorage.arr);
+    console.log(arrLike[innerId[1]].postsTitleBody[innerId[2]].comments[innerId[3]].like);
+
+
 });
 
 jQuery(document).on('click', '[id^="deleteComment_"]', function (e) {
